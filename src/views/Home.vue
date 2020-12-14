@@ -27,7 +27,15 @@
           <a style="margin: 5px" href="https://www.goodreads.com/author/on_goodreads" target="blank">Famous Authors</a>
       </div>
     </form>
-    <div id="showResults" v-if="showResults && !showFilter">
+    <div id="loading" v-if="loading">
+      <img
+        src="https://i.stack.imgur.com/qq8AE.gif"
+        alt="loading"
+        height="90"
+        width="100"
+      />
+    </div>
+    <div id="showResults" v-if="showResults && !showFilter && !loading">
       <h3 style="text-align: center">{{results.length}} Results for: {{search}}</h3>
       <div
         v-for="(item, i) in results"
@@ -54,7 +62,8 @@ export default {
       filter: [],
       showFilter: false,
       showResults: false,
-      search: ''
+      search: '',
+      loading: false
     };
   },
       beforeCreate() {
@@ -94,6 +103,8 @@ export default {
     searchBooks(){
       if(this.search !== '') {
         this.filter = [];
+        //loading until the request happens
+        this.loading = true;
         this.showFilter = false;
         this.showResults = true;
         axios.defaults.headers.common['Content-Type'] = 'application/json'
@@ -109,6 +120,8 @@ export default {
               imageUrl: book.volumeInfo.imageLinks && Object.keys(book.volumeInfo.imageLinks).length > 0? book.volumeInfo.imageLinks.thumbnail : 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png',
               authorName: Array.isArray(book.volumeInfo.authors) ? book.volumeInfo.authors[0] : 'Not Available'
             })
+            //stoping loading
+            this.loading = false;
           })
         })
         .catch(err =>{
@@ -146,6 +159,8 @@ export default {
     width: 89%;
     background-color: #ffffff;
   }
+
+
   #inputContainer {
     width: 99%;
     display: inline-flex;
@@ -169,6 +184,11 @@ export default {
   }
   button:hover {
     cursor: pointer;
+    border: 1px solid #ffffff; 
+  }
+
+  input[type="text"]:focus, button[type="button"]:focus {
+    outline: none
   }
 
   #filterList{
@@ -212,4 +232,13 @@ export default {
       border-radius: 5px;
   }
 
+  #loading{
+    position: fixed;
+    top: 60%;
+    left: 30%;
+    width: 39%;
+    background-color: #ffffff;
+    text-align: center;
+    border-radius: 5px;
+  }
 </style>
